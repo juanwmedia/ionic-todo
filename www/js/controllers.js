@@ -1,4 +1,4 @@
-function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray, $firebaseAuth) {
+function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray, $firebaseAuth, $ionicScrollDelegate) {
     var vm = this;
     vm.autenticado = false;
     vm.usuario = null;
@@ -54,6 +54,10 @@ function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray,
     // Real-time database
     var ref = firebase.database().ref().child("tareas");
 
+    ref.on('value', function(snapshot){
+        $ionicScrollDelegate.$getByHandle('tareas').scrollTop(true);
+    });
+
     vm.tareas = $firebaseArray(ref);
 
     vm.abrirAgregarTarea = function () {
@@ -68,6 +72,7 @@ function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray,
         vm.tareas.$add({
             titulo: tarea.titulo,
             usuario: vm.usuario.displayName,
+            uid: vm.usuario.uid,
             foto: vm.usuario.photoURL,
             completado: false
         });

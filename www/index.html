@@ -60,7 +60,7 @@
             </button>
         </div>
     </ion-header-bar>
-    <ion-content>
+    <ion-content delegate-handle="tareas">
         <ion-list show-delete="todo.shouldShowDelete"
                   show-reorder="todo.shouldShowReorder"
                   can-swipe="todo.listCanSwipe">
@@ -72,12 +72,12 @@
                 </h2>
                 <p>{{ tarea.usuario || 'Anónimo' }}</p>
 
-                <ion-option-button ng-show="todo.autenticado" class="button-dark"
+                <ion-option-button ng-show="todo.usuario.uid === tarea.uid" class="button-dark"
                                    ng-click="todo.cambiarEstadoTarea(tarea)">
                     <span ng-hide="tarea.completado">Completar tarea</span>
                     <span ng-show="tarea.completado">Activar tarea</span>
                 </ion-option-button>
-                <ion-option-button ng-show="todo.autenticado" class="button-info"
+                <ion-option-button ng-show="todo.usuario.uid === tarea.uid" class="button-info"
                                    ng-click="todo.abrirEditarTarea(tarea)">
                     Editar tarea
                 </ion-option-button>
