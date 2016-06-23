@@ -81,7 +81,8 @@
                                    ng-click="todo.abrirEditarTarea(tarea)">
                     Editar tarea
                 </ion-option-button>
-                <ion-delete-button class="ion-minus-circled"
+                <ion-delete-button ng-show="todo.usuario.uid === tarea.uid"
+                                   class="ion-minus-circled"
                                    ng-click="todo.eliminarTarea(tarea)">
                 </ion-delete-button>
             </ion-item>
