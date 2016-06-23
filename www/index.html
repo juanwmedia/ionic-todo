@@ -21,6 +21,22 @@
     <!-- your app's js -->
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
+
+    <!-- Firebase init -->
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAxIeM6zovlZ2XfVdQ6PEVWBsG4IwQrXmg",
+            authDomain: "todoapp-7daeb.firebaseapp.com",
+            databaseURL: "https://todoapp-7daeb.firebaseio.com",
+            storageBucket: "",
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.0.1/angularfire.min.js"></script>
+
 </head>
 <body ng-app="TodoApp" ng-controller="TodoController as todo">
 
@@ -38,14 +54,20 @@
         <ion-list show-delete="todo.shouldShowDelete"
                   show-reorder="todo.shouldShowReorder"
                   can-swipe="todo.listCanSwipe">
-            <ion-item ng-repeat="tarea in todo.tareas">
+            <ion-item ng-repeat="tarea in todo.tareas"
+                      ng-class="{completado: tarea.completado}">
                 {{ tarea.titulo }}
+                <ion-option-button class="button-dark"
+                                   ng-click="todo.cambiarEstadoTarea(tarea)">
+                    <span ng-hide="tarea.completado">Completar tarea</span>
+                    <span ng-show="tarea.completado">Activar tarea</span>
+                </ion-option-button>
                 <ion-option-button class="button-info"
-                                   ng-click="todo.editarTarea($index)">
+                                   ng-click="todo.abrirEditarTarea(tarea)">
                     Editar tarea
                 </ion-option-button>
                 <ion-delete-button class="ion-minus-circled"
-                                   ng-click="todo.eliminarTarea($index)">
+                                   ng-click="todo.eliminarTarea(tarea)">
                 </ion-delete-button>
             </ion-item>
         </ion-list>
@@ -58,7 +80,7 @@
         <ion-header-bar class="bar-secondary">
             <h1 class="title">Agregar tarea</h1>
             <button class="button button-clear button-positive"
-                    ng-click="todo.cerrarNuevaTarea()">Cancelar
+                    ng-click="todo.cerrarAgregarTarea()">Cancelar
             </button>
         </ion-header-bar>
         <ion-content>
@@ -91,7 +113,7 @@
             </button>
         </ion-header-bar>
         <ion-content>
-            <form ng-submit="todo.guardarTareaEditada()">
+            <form ng-submit="todo.editarTarea()">
                 <div class="list">
                     <label class="item item-input">
                         <input type="text"

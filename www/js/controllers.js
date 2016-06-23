@@ -1,16 +1,9 @@
-function TodoController($ionicModal,$ionicListDelegate, $scope) {
+function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray) {
     var vm = this;
     vm.shouldShowDelete = false;
     vm.shouldShowReorder = false;
     vm.listCanSwipe = true
     vm.tareaEditada = null;
-    vm.tareas = [
-        {titulo: 'Hacer la compra', completado: false},
-        {titulo: 'Aprender Ionic', completado: false},
-        {titulo: 'Pulir Angular', completado: false},
-        {titulo: 'Limpiar la casa', completado: false},
-        {titulo: 'Ir a la playa', completado: false},
-    ];
 
     $ionicModal.fromTemplateUrl('agregar-tarea.html', {
         scope: $scope,
@@ -26,42 +19,52 @@ function TodoController($ionicModal,$ionicListDelegate, $scope) {
         vm.modalEditar = modal;
     });
 
-    // Funciones/métodos
+    // Funciones/métodos con Firebase
+    var ref = firebase.database().ref().child("tareas");
+
+    vm.tareas = $firebaseArray(ref);
+
     vm.abrirAgregarTarea = function () {
         vm.modalAgregar.show();
     };
 
-    vm.cerrarNuevaTarea = function () {
+    vm.cerrarAgregarTarea = function () {
         vm.modalAgregar.hide();
     };
 
-    vm.agregarTarea = function (tarea) {
-        vm.tareas.unshift({
+    vm.agregarTarea = function(tarea) {
+        vm.tareas.$add({
             titulo: tarea.titulo,
-            completado: false,
+            completado: false
         });
         vm.modalAgregar.hide();
         tarea.titulo = '';
     };
 
-    vm.eliminarTarea = function (indice) {
-        vm.tareas.splice(indice, 1);
-    };
-
-    vm.editarTarea = function (indice) {
-        vm.tareaEditada = vm.tareas[indice];
+    vm.abrirEditarTarea = function (tarea) {
+        vm.tareaEditada = tarea;
         vm.modalEditar.show();
-    };
-
-    vm.guardarTareaEditada = function () {
-        vm.tareas[vm.tareas.indexOf(vm.tareaEditada)].titulo = vm.tareaEditada.titulo;
-        vm.modalEditar.hide();
-        $ionicListDelegate.closeOptionButtons();
     };
 
     vm.cerrarEditarTarea = function () {
         vm.modalEditar.hide();
     };
+
+    vm.editarTarea = function () {
+        vm.tareas.$save(vm.tareaEditada);
+        vm.modalEditar.hide();
+        $ionicListDelegate.closeOptionButtons();
+    };
+
+    vm.eliminarTarea = function (tarea) {
+        vm.tareas.$remove(tarea);
+    };
+
+    vm.cambiarEstadoTarea = function(tarea) {
+        tarea.completado = !tarea.completado;
+        vm.tareas.$save(tarea);
+        $ionicListDelegate.closeOptionButtons();
+    }
 }
 
 angular
