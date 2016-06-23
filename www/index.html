@@ -24,7 +24,7 @@
 
     <!-- Firebase init -->
     <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+    <script src="js/firebase.js"></script>
     <script>
         // Initialize Firebase
         var config = {
@@ -35,34 +35,49 @@
         };
         firebase.initializeApp(config);
     </script>
-    <script src="https://cdn.firebase.com/libs/angularfire/2.0.1/angularfire.min.js"></script>
+    <script src="js/angularfire.min.js"></script>
 
 </head>
 <body ng-app="TodoApp" ng-controller="TodoController as todo">
 
 <ion-pane>
     <ion-header-bar class="bar-positive">
-        <button class="button" ng-click="todo.shouldShowDelete = !todo.shouldShowDelete">
+        <button class="button"
+                ng-show="todo.autenticado"
+                ng-click="todo.shouldShowDelete = !todo.shouldShowDelete">
             <i class="icon ion-ios-minus"></i>
         </button>
         <h1 class="title">TodoApp</h1>
-        <button class="button" ng-click="todo.abrirAgregarTarea()">
-            <i class="icon ion-plus-round"></i>
-        </button>
+        <div class="buttons">
+            <button class="button" ng-hide="todo.autenticado" ng-click="todo.conectar()">
+                <i>Conectar</i>
+            </button>
+            <button class="button" ng-show="todo.autenticado" ng-click="todo.desconectar()">
+                <i>Desconectar</i>
+            </button>
+            <button class="button" ng-show="todo.autenticado" ng-click="todo.abrirAgregarTarea()">
+                <i class="icon ion-plus-round"></i>
+            </button>
+        </div>
     </ion-header-bar>
     <ion-content>
         <ion-list show-delete="todo.shouldShowDelete"
                   show-reorder="todo.shouldShowReorder"
                   can-swipe="todo.listCanSwipe">
-            <ion-item ng-repeat="tarea in todo.tareas"
-                      ng-class="{completado: tarea.completado}">
-                {{ tarea.titulo }}
-                <ion-option-button class="button-dark"
+            <ion-item class="item-avatar" ng-repeat="tarea in todo.tareas">
+
+                <img ng-src="{{ tarea.foto || 'img/ionic.png' }}">
+                <h2 ng-class="{completado: tarea.completado}">
+                    {{ tarea.titulo }}
+                </h2>
+                <p>{{ tarea.usuario || 'Anónimo' }}</p>
+
+                <ion-option-button ng-show="todo.autenticado" class="button-dark"
                                    ng-click="todo.cambiarEstadoTarea(tarea)">
                     <span ng-hide="tarea.completado">Completar tarea</span>
                     <span ng-show="tarea.completado">Activar tarea</span>
                 </ion-option-button>
-                <ion-option-button class="button-info"
+                <ion-option-button ng-show="todo.autenticado" class="button-info"
                                    ng-click="todo.abrirEditarTarea(tarea)">
                     Editar tarea
                 </ion-option-button>
@@ -130,6 +145,5 @@
     </div>
 </script>
 <!-- -->
-
 </body>
 </html>

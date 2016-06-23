@@ -1,5 +1,7 @@
-function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray) {
+function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray, $firebaseAuth) {
     var vm = this;
+    vm.autenticado = false;
+    vm.usuario = null;
     vm.shouldShowDelete = false;
     vm.shouldShowReorder = false;
     vm.listCanSwipe = true
@@ -20,6 +22,36 @@ function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray)
     });
 
     // Funciones/métodos con Firebase
+    // Auth
+    vm.auth = $firebaseAuth();
+
+    vm.conectar = function () {
+        console.log('Hola');
+        vm.auth.$signInWithPopup("google").then(function (firebaseUser) {
+            vm.autenticado = true;
+        }).catch(function (error) {
+            vm.autenticado = false;
+        });
+    };
+
+    vm.desconectar = function () {
+        vm.auth.$signOut();
+    };
+
+    vm.auth.$onAuthStateChanged(function (firebaseUser) {
+        if (firebaseUser) {
+            console.log("Signed in as:", firebaseUser.uid);
+            console.info(firebaseUser);
+            vm.autenticado = true;
+            vm.usuario = firebaseUser;
+        } else {
+            console.log("Signed out");
+            vm.autenticado = false;
+            vm.usuario = null;
+        }
+    });
+
+    // Real-time database
     var ref = firebase.database().ref().child("tareas");
 
     vm.tareas = $firebaseArray(ref);
@@ -32,9 +64,11 @@ function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray)
         vm.modalAgregar.hide();
     };
 
-    vm.agregarTarea = function(tarea) {
+    vm.agregarTarea = function (tarea) {
         vm.tareas.$add({
             titulo: tarea.titulo,
+            usuario: vm.usuario.displayName,
+            foto: vm.usuario.photoURL,
             completado: false
         });
         vm.modalAgregar.hide();
@@ -60,7 +94,7 @@ function TodoController($ionicModal, $ionicListDelegate, $scope, $firebaseArray)
         vm.tareas.$remove(tarea);
     };
 
-    vm.cambiarEstadoTarea = function(tarea) {
+    vm.cambiarEstadoTarea = function (tarea) {
         tarea.completado = !tarea.completado;
         vm.tareas.$save(tarea);
         $ionicListDelegate.closeOptionButtons();
